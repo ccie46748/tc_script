@@ -1,0 +1,67 @@
+#!/bin/bash
+
+WAN_INTERFACE=enxa0cec8092605
+LAN_INTERFACE=br0
+
+MAX_DOWNRATE=31000kbit
+
+USE_DOWNPERCENT=0.95
+
+MAX_UPRATE=5000kbit
+
+USE_UPPERCENT=0.95
+USE_UP_BULK_PERCENT=0.87
+
+/sbin/tc qdisc del dev $WAN_INTERFACE root 2> /dev/null
+/sbin/tc qdisc del dev $WAN_INTERFACE ingress 2> /dev/null
+/sbin/tc qdisc del dev $LAN_INTERFACE root 2> /dev/null
+/sbin/tc qdisc del dev $LAN_INTERFACE ingress 2> /dev/null
+
+MAX_UPNUM=`echo $MAX_UPRATE | sed 's/[^0-9]//g'`
+MAX_UPBASE=`echo $MAX_UPRATE | sed 's/[0-9]//g'`
+MAX_DOWNNUM=`echo $MAX_DOWNRATE | sed 's/[^0-9]//g'`
+MAX_DOWNBASE=`echo $MAX_DOWNRATE | sed 's/[0-9]//g'`
+
+NEAR_MAX_UPNUM=`echo "$MAX_UPNUM * $USE_UPPERCENT" | bc | xargs printf "%.0f"`
+NEAR_MAX_UPRATE="${NEAR_MAX_UPNUM}${MAX_UPBASE}"
+
+NEAR_MAX_DOWNNUM=`echo "$MAX_DOWNNUM * $USE_DOWNPERCENT" | bc | xargs printf "%.0f"`
+NEAR_MAX_DOWNRATE="${NEAR_MAX_DOWNNUM}${MAX_DOWNBASE}"
+
+P1_MAXUPNUM=`echo "$MAX_UPNUM * $USE_UP_BULK_PERCENT" | bc | xargs printf "%.0f"`
+P1_MAXUP="${P1_MAXUPNUM}${MAX_UPBASE}"
+
+MAX_DOWNRATE_INGRESSNUM=`echo "$MAX_DOWNNUM * 0.97" | bc | xargs printf "%.0f"`
+MAX_DOWNRATE_INGRESS="${MAX_DOWNRATE_INGRESSNUM}${MAX_DOWNBASE}"
+
+echo "MAX_UPNUM = $MAX_UPNUM"
+echo "NEAR_MAX_UPNUM = $NEAR_MAX_UPNUM"
+echo "NEAR_MAX_DOWNNUM = $NEAR_MAX_DOWNNUM"
+echo "P1_MAXUPNUM = $P1_MAXUPNUM"
+echo "MAX_DOWNRATE_INGRESSNUM $MAX_DOWNRATE_INGRESSNUM"
+
+#hfsc
+/sbin/tc qdisc add dev $WAN_INTERFACE root handle 1: hfsc default 11
+/sbin/tc class add dev $WAN_INTERFACE parent 1: classid 1:1 hfsc sc rate $NEAR_MAX_UPRATE ul rate $NEAR_MAX_UPRATE
+#1:10 is the priority
+/sbin/tc class add dev $WAN_INTERFACE parent 1:1 classid 1:10 hfsc sc umax 1540 dmax 5ms rate $NEAR_MAX_UPRATE ul rate $NEAR_MAX_UPRATE  
+/sbin/tc class add dev $WAN_INTERFACE parent 1:1 classid 1:11 hfsc sc umax 1540 dmax 5ms rate $P1_MAXUP ul rate $P1_MAXUP 
+
+/sbin/tc qdisc add dev $WAN_INTERFACE parent 1:10 handle 30: fq_codel
+/sbin/tc qdisc add dev $WAN_INTERFACE parent 1:11 handle 40: fq_codel
+
+#Match Mark 2 LAN->WAN (Upload)
+/sbin/tc filter add dev $WAN_INTERFACE protocol ip parent 1:0 prio 1 handle 2 fw flowid 1:10
+
+/sbin/tc qdisc add dev $LAN_INTERFACE root handle 1: hfsc default 11
+/sbin/tc class add dev $LAN_INTERFACE parent 1: classid 1:1 hfsc sc rate 1000mbit ul rate 1000mbit
+#1:10 is the priority
+/sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:10 hfsc sc umax 1540 dmax 5ms rate $NEAR_MAX_DOWNRATE ul rate $NEAR_MAX_DOWNRATE
+/sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:11 hfsc sc umax 1540 dmax 5ms rate 900mbit ul rate 900mbit
+
+#Match mark 999 WAN->LAN (Download) - mark 999 limit to ADSL
+/sbin/tc filter add dev $LAN_INTERFACE  protocol ip parent 1:0 prio 1 handle 999 fw flowid 1:10
+
+/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:10 handle 30: fq_codel
+/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:11 handle 40: fq_codel
+

@@ -19,8 +19,8 @@
 /sbin/iptables -t mangle -A FORWARD -o enxa0cec8092605 -m mark ! --mark 2 -m comment --comment "ip4-non-mark-2"
 /sbin/iptables -t mangle -A FORWARD -o enxa0cec8092605 -m mark --mark 2 -m comment --comment "ip4-mark-2"
 #inbound -limit the tcp it's reserve to outbound
-/sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 999
-/sbin/iptables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 999
+/sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 11
+/sbin/iptables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 11
 #do not police DNS
 /sbin/ip6tables -t mangle -A OUTPUT -p udp -m udp --dport 53 -j MARK --set-mark 2
 /sbin/iptables -t mangle -A OUTPUT -p udp -m udp --dport 53 -j MARK --set-mark 2

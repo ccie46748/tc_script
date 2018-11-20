@@ -2,6 +2,8 @@
 #reset tables
 /sbin/iptables -t mangle -F FORWARD
 /sbin/ip6tables -t mangle -F FORWARD
+/sbin/iptables -t mangle -F OUTPUT
+/sbin/ip6tables -t mangle -F OUTPUT
 #tcp ack,sync - do not police
 /sbin/ip6tables -t mangle -A FORWARD -o enxa0cec8092605 -p tcp -m length --length 0:128 -j MARK --set-xmark 0x2/0xffffffff
 /sbin/iptables -t mangle -A FORWARD -o enxa0cec8092605 -p tcp -m length --length 0:128 -j MARK --set-xmark 0x2/0xffffffff

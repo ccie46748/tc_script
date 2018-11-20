@@ -60,7 +60,7 @@ echo "MAX_DOWNRATE_INGRESSNUM $MAX_DOWNRATE_INGRESSNUM"
 /sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:11 hfsc sc umax 1540 dmax 5ms rate 900mbit ul rate 900mbit
 
 #Match mark 999 WAN->LAN (Download) - mark 999 limit to ADSL
-/sbin/tc filter add dev $LAN_INTERFACE  protocol ip parent 1:0 prio 1 handle 999 fw flowid 1:10
+/sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 prio 1 handle 999 fw flowid 1:10
 
 /sbin/tc qdisc add dev $LAN_INTERFACE parent 1:10 handle 30: fq_codel
 /sbin/tc qdisc add dev $LAN_INTERFACE parent 1:11 handle 40: fq_codel

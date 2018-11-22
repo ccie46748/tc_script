@@ -21,6 +21,8 @@
 #inbound - mark all tcp to limit it
 /sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 10
 /sbin/iptables -t mangle -A FORWARD -i enxa0cec8092605 -p tcp -m tcp -j MARK --set-mark 10
+/sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -j DSCP --set-dscp 1
+/sbin/iptables -t mangle -A FORWARD -i enxa0cec8092605 -j DSCP --set-dscp 1
 #do not police DNS
 /sbin/ip6tables -t mangle -A OUTPUT -p tcp -m tcp --dport 853 -j MARK --set-mark 2
 /sbin/iptables -t mangle -A OUTPUT -p tcp -m tcp --dport 853 -j MARK --set-mark 2

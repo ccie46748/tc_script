@@ -3,7 +3,7 @@
 WAN_INTERFACE=enxa0cec8092605
 LAN_INTERFACE=br0
 
-MAX_DOWNRATE=31000kbit
+MAX_DOWNRATE=29000kbit
 
 USE_DOWNPERCENT=0.95
 
@@ -63,12 +63,9 @@ echo "MAX_DOWNRATE_INGRESSNUM $MAX_DOWNRATE_INGRESSNUM"
 #1:12 - Limit
 /sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:10 hfsc sc umax 1540 dmax 5ms rate $NEAR_MAX_DOWNRATE ul rate $NEAR_MAX_DOWNRATE
 /sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:11 hfsc sc umax 1540 dmax 5ms rate 1950mbit ul rate 1950mbit 
-/sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:12 hfsc sc umax 1540 dmax 5ms rate 1mbit ul rate 1mbit
 
 #match mark 11 WAN->LAN (download) - mark 11 limit to ADSL
-/sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 prio 50 handle 10 fw flowid 1:10
-#limit tester
-/sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 prio 25 handle 12 fw flowid 1:12
+/sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 handle 10 fw flowid 1:10
 
 /sbin/tc qdisc add dev $LAN_INTERFACE parent 1:10 handle 30: fq_codel
 /sbin/tc qdisc add dev $LAN_INTERFACE parent 1:11 handle 40: fq_codel

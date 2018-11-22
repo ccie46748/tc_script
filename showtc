@@ -1,0 +1,5 @@
+#!/bin/bash
+echo "class show dev br0"
+tc -s -d class show dev br0 | grep 'htb\|hfsc\|prio\|Sent
+echo "class show dev enxa0cec8092605"
+tc -s -d class show dev enxa0cec8092605  | grep 'htb\|hfsc\|prio\|Sent

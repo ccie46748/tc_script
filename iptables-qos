@@ -30,4 +30,4 @@
 /sbin/ip6tables -t mangle -A OUTPUT -p udp -m udp --sport 547 --dport 546 -j MARK --set-mark 2
 /sbin/iptables -t mangle -A OUTPUT -p udp -m udp --sport 67:68 --dport 67:68 -j MARK --set-mark 2
 #temp
-/sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -d 2a02:68:1:7::1d -j MARK --set-mark 12
+/sbin/ip6tables -t mangle -A FORWARD -i enxa0cec8092605 -s 2a02:68:1:7::1 -j MARK --set-mark 12

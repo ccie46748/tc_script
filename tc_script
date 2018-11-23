@@ -67,6 +67,6 @@ echo "MAX_DOWNRATE_INGRESSNUM $MAX_DOWNRATE_INGRESSNUM"
 #match mark 11 WAN->LAN (download) - mark 11 limit to ADSL
 /sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 handle 10 fw flowid 1:10
 
-/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:10 handle 30: fq_codel
-/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:11 handle 40: fq_codel
+/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:10 handle 30: cake
+/sbin/tc qdisc add dev $LAN_INTERFACE parent 1:11 handle 40: cake
 

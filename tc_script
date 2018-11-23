@@ -62,7 +62,7 @@ echo "MAX_DOWNRATE_INGRESSNUM $MAX_DOWNRATE_INGRESSNUM"
 #1:11 - LAN+ADSL Priority
 #1:12 - Limit
 /sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:10 htb rate $NEAR_MAX_DOWNRATE ceil $NEAR_MAX_DOWNRATE 
-/sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:11 htb rate 1950mbit ceil 1950mbit 
+/sbin/tc class add dev $LAN_INTERFACE parent 1:1 classid 1:11 htb rate 1950mbit ceil 1950mbit
 
 #match mark 11 WAN->LAN (download) - mark 11 limit to ADSL
 /sbin/tc filter add dev $LAN_INTERFACE protocol ip parent 1:0 handle 10 fw flowid 1:10
